@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kumo - Concept & Omnichord</title>
+    <title>Kumo - Omnichord Digital</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -15,7 +15,6 @@
             --retro-ink: #4A4A4A;
         }
 
-        /* Background Animé type Sunset */
         .bg-animated {
             background: linear-gradient(-45deg, #F5F5DC, #FFE4E1, #E6E6FA, #FFF5EE);
             background-size: 400% 400%;
@@ -34,11 +33,12 @@
             font-family: 'Quicksand', sans-serif;
             margin: 0;
             overflow-x: hidden;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         h1, h2, h3 { font-family: 'Outfit', sans-serif; }
 
-        /* Navigation Style */
         .logo-k {
             width: 32px; height: 32px;
             background: var(--sky-pink);
@@ -54,13 +54,11 @@
         }
         .nav-link.active { opacity: 1; border-bottom: 2px solid var(--sky-pink); color: var(--sky-pink); }
 
-        /* Glassmorphism Card */
         .glass-card {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 32px;
-            transition: transform 0.3s ease;
         }
 
         .section-title {
@@ -70,7 +68,6 @@
         }
         .section-title::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.1; }
 
-        /* Kumo Character */
         .kumo-container {
             position: relative; width: 160px; height: 120px; margin: 0 auto;
         }
@@ -79,7 +76,7 @@
             width: 120px; height: 70px; background: white; border-radius: 100px;
             position: absolute; bottom: 10px; left: 20px;
             box-shadow: 0 15px 35px rgba(255, 183, 178, 0.2);
-            animation: float 4s ease-in-out infinite;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .kumo-body::before, .kumo-body::after {
@@ -93,137 +90,129 @@
             display: flex; gap: 12px;
         }
 
-        .eye { width: 6px; height: 6px; background: var(--retro-ink); border-radius: 50%; transition: 0.2s; }
+        .eye { width: 6px; height: 6px; background: var(--retro-ink); border-radius: 50%; transition: transform 0.1s; }
         .mouth {
             position: absolute; width: 10px; height: 5px;
             border-bottom: 2px solid var(--retro-ink); border-radius: 0 0 5px 5px;
-            bottom: -10px; left: 10px; transition: 0.2s;
+            bottom: -10px; left: 10px; transition: height 0.1s;
         }
 
-        .kumo-bubble {
-            position: absolute; top: -20px; right: -30px; background: white;
-            padding: 8px 16px; border-radius: 20px; border-bottom-left-radius: 4px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05); font-size: 10px;
-            opacity: 0; transform: translateY(10px); transition: all 0.3s;
-            z-index: 60; pointer-events: none;
+        .instrument-layout {
+            display: flex; gap: 20px; align-items: flex-start; width: 100%;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-
-        /* Omnichord Styles */
         .chord-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 45%; }
         .chord-btn {
             aspect-ratio: 1.1; background: white; border-radius: 16px;
-            border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column;
+            border: 2px solid transparent; display: flex; flex-direction: column;
             align-items: center; justify-content: center; font-weight: 800; font-size: 12px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.05); transition: all 0.1s; cursor: pointer;
         }
-        .chord-btn:hover { background: #fafafa; }
         .chord-btn.active { 
             background: var(--sun-glow); transform: translateY(3px); 
-            box-shadow: 0 1px 0 rgba(0,0,0,0.1); border-color: transparent;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        }
+        .chord-btn.guide-active { border-color: var(--sky-pink); animation: pulseGuide 1.5s infinite; }
+
+        @keyframes pulseGuide {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 183, 178, 0.4); }
+            50% { box-shadow: 0 0 15px 5px rgba(255, 183, 178, 0.4); }
         }
 
-        /* Strum Plate Verticale */
         .strum-plate {
-            width: 50%; height: 320px; border-radius: 24px; position: relative; overflow: hidden;
-            background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+            width: 50%; height: 350px; border-radius: 24px; position: relative; overflow: hidden;
+            background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.3), rgba(255,255,255,0.05));
             border: 1px solid rgba(255,255,255,0.3); touch-action: none;
-            cursor: crosshair;
-            display: flex; flex-direction: column; justify-content: space-between; padding: 5px 0;
-            z-index: 10;
+            cursor: crosshair; display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        /* Visuel des cordes horizontales pour plaque verticale */
         .omni-string {
-            width: 100%;
-            flex: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
+            width: 100%; flex: 1; position: relative; display: flex; align-items: center;
         }
 
         .omni-string::after {
-            content: '';
-            height: 2px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.45);
-            box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+            content: ''; height: 1px; width: 100%; background: rgba(255, 255, 255, 0.4);
             transition: all 0.15s ease-out;
         }
 
         .omni-string.vibrate::after {
-            background: white;
-            box-shadow: 0 0 12px white;
-            transform: scaleY(2.5);
+            background: white; box-shadow: 0 0 10px white; transform: scaleY(4);
         }
 
-        .swatch { height: 60px; width: 100%; border-radius: 16px; margin-bottom: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
-        
-        /* Utility for Tabs */
-        .page-content { display: none; }
-        .page-content.active { display: block; animation: fadeIn 0.5s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .lyrics-container {
+            height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
         }
+
+        .lyric-line {
+            font-size: 18px; font-weight: 700; color: var(--retro-ink); 
+            transition: opacity 0.3s;
+            position: absolute; width: 100%;
+        }
+
+        .lyric-sub { font-size: 11px; opacity: 0.4; margin-top: 4px; font-weight: 500; font-style: italic; }
+
+        .progress-container { width: 100%; height: 4px; background: rgba(0,0,0,0.05); border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--sky-pink); transition: width 0.1s linear; }
 
         .sparkle {
             position: absolute; pointer-events: none; border-radius: 50%;
-            background: white; animation: sparkleAnim 0.6s ease-out forwards;
-            z-index: 20;
+            background: white; animation: sparkleAnim 0.5s ease-out forwards;
         }
 
         @keyframes sparkleAnim {
             0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
+            100% { transform: scale(2.5); opacity: 0; }
         }
 
-        /* Message mobile pour activer le son */
-        #mobile-audio-tip {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--retro-ink); color: white; padding: 12px 24px;
-            border-radius: 50px; font-size: 11px; font-weight: bold; text-transform: uppercase;
-            letter-spacing: 1px; z-index: 100; pointer-events: none; opacity: 0; transition: 0.5s;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        .song-btn {
+            background: white; border-radius: 12px; padding: 10px; font-size: 9px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; border: 1px solid transparent;
+        }
+        .song-btn.active { border-color: var(--sky-pink); color: var(--sky-pink); box-shadow: 0 4px 12px rgba(255, 183, 178, 0.2); }
+
+        .partition-badge {
+            background: #4A4A4A; color: white; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: bold;
         }
 
-        /* Layout Instrument Gaucher/Droitier Naturel */
-        .instrument-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            width: 100%;
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #audio-overlay {
+            position: fixed; inset: 0; background: rgba(245, 245, 220, 0.9);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
         }
     </style>
 </head>
 <body class="bg-animated">
 
-    <div id="mobile-audio-tip">Touchez n'importe où pour activer le son 🎵</div>
+    <div id="audio-overlay" onclick="unlockAudio()">
+        <div class="logo-k w-16 h-16 text-xl mb-4 shadow-xl">K</div>
+        <h2 class="text-2xl font-bold mb-2">Bienvenue dans l'univers Kumo</h2>
+        <p class="opacity-60 text-sm mb-6">Touchez l'écran pour activer l'expérience sonore.</p>
+        <button class="bg-white px-8 py-3 rounded-full shadow-lg font-bold text-xs tracking-widest uppercase">Commencer</button>
+    </div>
 
-    <!-- Navigation Glogale -->
     <nav class="max-w-4xl mx-auto mt-6 mb-8 flex justify-between items-center bg-white/40 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-sm sticky top-4 z-50">
         <div class="flex items-center gap-3">
             <div class="logo-k shadow-md">K</div>
-            <span class="font-bold tracking-tighter uppercase text-[10px] text-retro-ink">Kumo System v2</span>
+            <span class="font-bold tracking-tighter uppercase text-[10px]">Kumo System v2.0</span>
         </div>
         <div class="flex gap-6">
             <div onclick="showPage('concept')" id="nav-concept" class="nav-link active">Concept</div>
             <div onclick="showPage('instrument')" id="nav-instrument" class="nav-link">Instrument</div>
+            <div onclick="showPage('playground')" id="nav-playground" class="nav-link">Playground</div>
         </div>
     </nav>
 
-    <!-- PAGE 1: CONCEPT -->
     <main id="page-concept" class="page-content active max-w-4xl mx-auto px-4 pb-12 space-y-10">
         <header class="text-center py-6">
             <span class="text-[10px] uppercase tracking-[0.4em] font-bold text-[#FFB7B2]">Digital Serenity</span>
-            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-retro-ink mt-2">Vapor Cocon</h1>
+            <h1 class="text-5xl font-bold tracking-tight text-retro-ink mt-2">Vapor Cocon</h1>
             <p class="max-w-xl mx-auto text-base opacity-60 leading-relaxed italic mt-4">
-                Fusionner l'esthétique nostalgique de la City Pop avec le confort sonore minimaliste.
+                Une interface pensée pour la méditation musicale, où chaque geste génère une réponse visuelle et sonore.
             </p>
         </header>
 
@@ -237,316 +226,298 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-xs font-bold mb-4">Kumo (雲)</p>
-                <div class="flex gap-2">
-                    <button onclick="kumoInteraction('concept', 'love')" class="bg-white px-4 py-2 rounded-full text-[9px] font-bold shadow-sm hover:shadow-md transition-all">CÂLIN</button>
-                    <button onclick="kumoInteraction('concept', 'jump')" class="bg-white px-4 py-2 rounded-full text-[9px] font-bold shadow-sm hover:shadow-md transition-all">SAUTER</button>
-                </div>
             </section>
-
-            <section class="glass-card p-8">
-                <h2 class="section-title">Palette Chromatique</h2>
-                <div class="grid grid-cols-2 gap-4 h-full content-center">
-                    <div class="text-center">
-                        <div class="swatch" style="background: var(--sky-pink)"></div>
-                        <span class="text-[10px] font-bold">Sky Pink</span>
-                    </div>
-                    <div class="text-center">
-                        <div class="swatch" style="background: var(--dusk-blue)"></div>
-                        <span class="text-[10px] font-bold">Dusk Blue</span>
-                    </div>
-                    <div class="text-center">
-                        <div class="swatch" style="background: var(--sun-glow)"></div>
-                        <span class="text-[10px] font-bold">Sun Glow</span>
-                    </div>
-                    <div class="text-center">
-                        <div class="swatch border border-black/5" style="background: var(--linen-paper)"></div>
-                        <span class="text-[10px] font-bold">Linen Paper</span>
-                    </div>
+            <section class="glass-card p-8 flex flex-col justify-center">
+                <h2 class="section-title">Mode d'emploi</h2>
+                <div class="space-y-4 text-sm opacity-70">
+                    <p><strong>1. Main Gauche :</strong> Sélectionnez l'accord de base parmi la grille.</p>
+                    <p><strong>2. Main Droite :</strong> Glissez sur la zone de grattage pour jouer la mélodie.</p>
+                    <p><strong>3. Partition :</strong> En mode Playground, suivez la gamme affichée en haut.</p>
                 </div>
             </section>
         </div>
-
-        <section class="glass-card p-8">
-            <h2 class="section-title">Typographie & Mood</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div class="space-y-4">
-                    <p class="text-[9px] opacity-40 uppercase tracking-widest">Titres - Outfit</p>
-                    <p class="text-3xl font-bold leading-tight">Mélodies d'un été sans fin.</p>
-                    <hr class="opacity-10">
-                    <p class="text-[9px] opacity-40 uppercase tracking-widest">Corps - Quicksand</p>
-                    <p class="text-sm opacity-70">
-                        Chaque interaction est pensée pour être douce. Pas de contrastes violents, seulement des formes rondes et des textures "cloud-like".
-                    </p>
-                </div>
-                <div class="bg-white/20 p-6 rounded-2xl border border-white/40 italic text-xs leading-relaxed">
-                    "L'Omnichord original était un instrument d'accessibilité. Nous reprenons cette philosophie pour créer un sanctuaire digital."
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- PAGE 2: INSTRUMENT -->
-    <main id="page-instrument" class="page-content max-w-2xl mx-auto px-4 pb-12 flex flex-col items-center">
-        <div class="text-center relative mb-6">
-            <div id="kumo-bubble-inst" class="kumo-bubble">
-                <span id="bubble-text" class="font-bold">...</span>
+    <main id="page-instrument" class="page-content max-w-2xl mx-auto px-4 pb-12">
+        <div id="playground-ui" class="hidden glass-card p-6 mb-6 w-full border-pink-100 shadow-xl">
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="partition-badge" id="partition-display">Gamme : N/A</div>
+                    <button id="play-btn" class="bg-pink-400 text-white px-8 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-all">Jouer</button>
+                </div>
+                <div class="grid grid-cols-5 gap-2" id="song-grid"></div>
             </div>
+            <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+            <div class="lyrics-container" id="lyrics-display">
+                <div class="lyric-line" id="current-lyric" style="opacity: 1;">Sélectionnez une chanson...</div>
+            </div>
+        </div>
+
+        <div class="text-center relative mb-8">
             <div class="kumo-container">
                 <div class="kumo-body" id="kumo-inst-body">
                     <div class="kumo-face">
-                        <div class="eye" id="eye-l"></div><div class="eye" id="eye-r"></div><div class="mouth" id="mouth-inst"></div>
+                        <div class="eye"></div><div class="eye"></div><div class="mouth"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="w-full glass-card p-6 space-y-6 shadow-2xl border-white/60 relative">
-            <div class="absolute top-4 right-6 flex gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-red-400/40"></div>
-                <div id="led-active" class="w-1.5 h-1.5 rounded-full bg-blue-400/10 transition-colors duration-200"></div>
-            </div>
-
-            <!-- Header Labels -->
             <div class="flex justify-between items-center px-1">
-                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Chords (Main Gauche)</span>
-                <span class="text-[8px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Choisissez un accord</span>
-                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Strum (Main Droite)</span>
+                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Accords</span>
+                <span class="text-[9px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Choisissez un accord</span>
+                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Cordes</span>
             </div>
-
-            <!-- Nouvelle Disposition Flex -->
             <div class="instrument-layout">
-                <!-- Touches Gammes à gauche -->
                 <div class="chord-grid" id="chord-grid"></div>
-
-                <!-- Synth Plate Verticale à droite -->
-                <div class="strum-plate shadow-inner" id="strum-plate">
-                    <!-- Les cordes sont injectées dynamiquement par JS -->
-                </div>
+                <div class="strum-plate shadow-inner" id="strum-plate"></div>
             </div>
-        </div>
-
-        <div class="mt-8 text-center opacity-30 space-y-1">
-            <p class="text-[9px] font-bold uppercase tracking-widest">Conseil : Appuyez à gauche, glissez à droite</p>
-            <p class="text-[8px] font-bold uppercase tracking-widest italic">Vaporwave Soundscape</p>
         </div>
     </main>
 
     <script>
-        // --- ÉTATS GLOBAUX ---
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const playlist = [
+            { title: "Yume", bpm: 80, scale: "Do Majeur (C)", sequence: [
+                { time: 0, lyrics: "Sora wa pinku iro...", sub: "Le ciel devient rose...", chord: "C" },
+                { time: 6, lyrics: "Kaze ga utau yo.", sub: "Le vent chante.", chord: "F" },
+                { time: 12, lyrics: "Issho ni odorou !", sub: "Dansons ensemble !", chord: "G" },
+                { time: 18, lyrics: "Owari no nai yume.", sub: "Un rêve sans fin.", chord: "C" }
+            ]},
+            { title: "Neon", bpm: 110, scale: "Ré Mineur (Dm)", sequence: [
+                { time: 0, lyrics: "Les lumières défilent...", sub: "City lights sliding by...", chord: "Dm" },
+                { time: 8, lyrics: "Le rythme du cœur...", sub: "The heartbeat...", chord: "G" },
+                { time: 16, lyrics: "On ne s'arrête jamais.", sub: "Never stop.", chord: "C" }
+            ]},
+            { title: "Nap", bpm: 60, scale: "La Mineur (Am)", sequence: [
+                { time: 0, lyrics: "Dormir sur la lune...", sub: "Sleeping on the moon...", chord: "Am" },
+                { time: 10, lyrics: "Rêve de mondes lointains.", sub: "Far away worlds.", chord: "Em" }
+            ]},
+            { title: "Aura", bpm: 90, scale: "Fa Majeur (F)", sequence: [
+                { time: 0, lyrics: "Une aura de lumière...", sub: "An aura of light...", chord: "F" },
+                { time: 12, lyrics: "Autour de toi.", sub: "Around you.", chord: "Bb" }
+            ]},
+            { title: "Rain", bpm: 75, scale: "Sol Majeur (G)", sequence: [
+                { time: 0, lyrics: "La pluie tombe doucement.", sub: "Soft rain falling.", chord: "G" },
+                { time: 15, lyrics: "Tout s'efface.", sub: "Everything fades.", chord: "C" }
+            ]},
+            { title: "Kumo", bpm: 100, scale: "Do Majeur (C)", sequence: [
+                { time: 0, lyrics: "Je suis un nuage.", sub: "I am a cloud.", chord: "C" },
+                { time: 10, lyrics: "Je vole très haut.", sub: "Flying high.", chord: "F" }
+            ]},
+            { title: "Echo", bpm: 85, scale: "Ré Mineur (Dm)", sequence: [
+                { time: 0, lyrics: "L'écho de la montagne.", sub: "Mountain echo.", chord: "Dm" },
+                { time: 12, lyrics: "Me répond enfin.", sub: "Answers me.", chord: "Am" }
+            ]},
+            { title: "Star", bpm: 120, scale: "La Mineur (Am)", sequence: [
+                { time: 0, lyrics: "L'étoile du matin.", sub: "Morning star.", chord: "Am" },
+                { time: 8, lyrics: "Guide mes pas.", sub: "Guide my steps.", chord: "Em" }
+            ]},
+            { title: "Wind", bpm: 95, scale: "Fa Majeur (F)", sequence: [
+                { time: 0, lyrics: "Le vent du nord souffle.", sub: "North wind blows.", chord: "F" },
+                { time: 14, lyrics: "Vers le sud.", sub: "To the south.", chord: "C" }
+            ]},
+            { title: "Moon", bpm: 55, scale: "Sol Majeur (G)", sequence: [
+                { time: 0, lyrics: "La lune est pleine.", sub: "Full moon.", chord: "G" },
+                { time: 20, lyrics: "Le silence est d'or.", sub: "Silence is golden.", chord: "D" }
+            ]}
+        ];
+
+        const chords = {
+            'C': [261.63, 329.63, 392.00], 'F': [349.23, 440.00, 523.25], 'G': [392.00, 493.88, 587.33],
+            'Am': [220.00, 261.63, 329.63], 'Dm': [293.66, 349.23, 440.00], 'Em': [329.63, 392.00, 493.88],
+            'Bb': [233.08, 293.66, 349.23], 'D': [293.66, 369.99, 440.00]
+        };
+
         let audioCtx = null;
         let currentChordFreqs = null;
-        let audioUnlocked = false;
         let lastString = -1;
+        let isPlaying = false;
+        let playbackInterval = null;
+        let selectedSongIdx = 0;
+        let lastLyricTime = -1;
 
-        // --- GESTION DES PAGES ---
+        function unlockAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx.resume();
+            document.getElementById('audio-overlay').style.display = 'none';
+        }
+
+        function playTone(freq, type = 'triangle', decay = 1.2, volume = 0.08) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + decay);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + decay);
+            animateKumoPulse();
+        }
+
         function showPage(pageId) {
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
+            const isPlayground = (pageId === 'playground');
+            const targetId = isPlayground ? 'instrument' : pageId;
+            document.getElementById('page-' + targetId).classList.add('active');
             document.getElementById('nav-' + pageId).classList.add('active');
+            const pgUI = document.getElementById('playground-ui');
+            if (isPlayground) pgUI.classList.remove('hidden');
+            else { pgUI.classList.add('hidden'); stopSong(); }
         }
 
-        // --- DÉVERROUILLAGE AUDIO MOBILE AVEC FIX HAUT-PARLEUR ---
-        function unlockAudio() {
-            if (audioUnlocked) return;
-            
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-                    latencyHint: 'interactive',
-                    sampleRate: 44100,
-                });
-            }
-            
-            const buffer = audioCtx.createBuffer(1, 1, 22050);
-            const source = audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-
-            audioCtx.resume().then(() => {
-                audioUnlocked = true;
-                document.getElementById('mobile-audio-tip').style.opacity = '0';
-                console.log("Audio Unlocked & Speaker Forced");
-            });
-        }
-
-        if (window.innerWidth < 780) {
-            setTimeout(() => {
-                if (!audioUnlocked) document.getElementById('mobile-audio-tip').style.opacity = '1';
-            }, 1000);
-        }
-
-        document.addEventListener('click', unlockAudio, { once: true });
-        document.addEventListener('touchstart', unlockAudio, { once: true });
-
-        // --- DONNÉES ACCORDS ---
-        const chords = {
-            'C': [261.63, 329.63, 392.00],
-            'F': [349.23, 440.00, 523.25],
-            'G': [392.00, 493.88, 587.33],
-            'Am': [220.00, 261.63, 329.63],
-            'Dm': [293.66, 349.23, 440.00],
-            'Em': [329.63, 392.00, 493.88],
-            'Bb': [233.08, 293.66, 349.23],
-            'D': [293.66, 369.99, 440.00]
-        };
-        const chordKeys = Object.keys(chords);
-
-        // --- SYNTHÈSE SONORE ORIGINALE ---
-        function playTone(freq, type = 'triangle', decay = 1.2, volume = 0.08) {
-            if (!audioUnlocked || !audioCtx) return;
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + decay);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + decay);
-        }
-
-        // --- INITIALISATION INTERFACE ---
-        const grid = document.getElementById('chord-grid');
-        const label = document.getElementById('current-chord-label');
+        const chordGrid = document.getElementById('chord-grid');
+        const songGrid = document.getElementById('song-grid');
+        const playBtn = document.getElementById('play-btn');
         const strumPlate = document.getElementById('strum-plate');
+
+        playlist.forEach((s, i) => {
+            const btn = document.createElement('button');
+            btn.className = `song-btn ${i===0?'active':''}`;
+            btn.id = `song-btn-${i}`;
+            btn.innerText = s.title;
+            btn.onclick = () => selectSong(i);
+            songGrid.appendChild(btn);
+        });
+
+        Object.keys(chords).forEach((name, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'chord-btn';
+            btn.id = `chord-btn-${name}`;
+            btn.innerHTML = `<span>${name}</span><span class="text-[7px] opacity-20 mt-1">${i+1}</span>`;
+            btn.onclick = () => selectChord(name, btn);
+            chordGrid.appendChild(btn);
+        });
+
+        function selectSong(idx) {
+            if (isPlaying) stopSong();
+            selectedSongIdx = idx;
+            document.querySelectorAll('.song-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`song-btn-${idx}`).classList.add('active');
+            document.getElementById('partition-display').innerText = "Gamme : " + playlist[idx].scale;
+            document.getElementById('current-lyric').innerText = "Prêt à jouer : " + playlist[idx].title;
+        }
+
+        function selectChord(name, el) {
+            document.querySelectorAll('.chord-btn').forEach(b => b.classList.remove('active'));
+            if (!el) el = document.getElementById(`chord-btn-${name}`);
+            if (el) el.classList.add('active');
+            currentChordFreqs = chords[name];
+            document.getElementById('current-chord-label').innerText = "Accord : " + name;
+        }
 
         function initStrings() {
             strumPlate.innerHTML = '';
             for(let i = 0; i < 14; i++) {
-                const string = document.createElement('div');
-                string.className = 'omni-string';
-                string.id = `string-${i}`;
-                strumPlate.appendChild(string);
+                const str = document.createElement('div');
+                str.className = 'omni-string';
+                str.id = `string-${i}`;
+                strumPlate.appendChild(str);
             }
         }
 
-        chordKeys.forEach((name, i) => {
-            const btn = document.createElement('div');
-            btn.className = 'chord-btn';
-            btn.innerHTML = `<span>${name}</span><span class="text-[7px] opacity-20 mt-1 uppercase">${i+1}</span>`;
-            btn.onclick = (e) => { e.stopPropagation(); selectChord(name, btn); };
-            grid.appendChild(btn);
-        });
-
-        function selectChord(name, el) {
-            document.querySelectorAll('.chord-btn').forEach(b => b.classList.remove('active'));
-            if (el) el.classList.add('active');
-            
-            currentChordFreqs = chords[name];
-            label.innerText = "Accord de " + name;
-            
-            const led = document.getElementById('led-active');
-            led.style.background = '#FFB7B2';
-            setTimeout(() => led.style.background = 'rgba(96, 165, 250, 0.1)', 150);
-
-            if(audioUnlocked) {
-                currentChordFreqs.forEach(f => playTone(f/2, 'sine', 0.8, 0.02));
-            }
-        }
-
-        // --- LOGIQUE DE JEU (STRUMMING VERTICAL) ---
         function handleStrum(e) {
             if (!currentChordFreqs) return;
             const rect = strumPlate.getBoundingClientRect();
-            
-            // On utilise Y pour la plaque verticale
-            const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
-            const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
-            
-            if (clientY === undefined) return;
-
+            const clientY = (e.touches) ? e.touches[0].clientY : e.clientY;
+            const clientX = (e.touches) ? e.touches[0].clientX : e.clientX;
             const y = Math.max(0, Math.min(clientY - rect.top, rect.height));
             const stringIdx = Math.floor((y / rect.height) * 14);
-
             if (stringIdx !== lastString && stringIdx >= 0 && stringIdx < 14) {
                 lastString = stringIdx;
-                
-                const strEl = document.getElementById(`string-${stringIdx}`);
-                if(strEl) {
-                    strEl.classList.add('vibrate');
-                    setTimeout(() => strEl.classList.remove('vibrate'), 150);
-                }
-
-                if(audioUnlocked) {
-                    const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
-                    const octaveShift = Math.floor(stringIdx / 4);
-                    playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.2, 0.08);
-                }
-                
-                // Particule adaptée au nouveau layout
+                const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
+                playTone(noteBase * Math.pow(2, Math.floor(stringIdx / 4)), 'triangle', 1.2, 0.08);
                 const spark = document.createElement('div');
                 spark.className = 'sparkle';
                 spark.style.left = (clientX - rect.left) + 'px';
-                spark.style.top = y + 'px';
-                spark.style.width = '12px'; spark.style.height = '12px';
+                spark.style.top = (clientY - rect.top) + 'px';
                 strumPlate.appendChild(spark);
-                setTimeout(() => spark.remove(), 600);
+                setTimeout(() => spark.remove(), 500);
             }
         }
 
         strumPlate.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleStrum(e); });
-        strumPlate.addEventListener('mousedown', handleStrum);
         strumPlate.addEventListener('touchstart', (e) => { e.preventDefault(); handleStrum(e); }, {passive: false});
         strumPlate.addEventListener('touchmove', (e) => { e.preventDefault(); handleStrum(e); }, {passive: false});
-        strumPlate.addEventListener('touchend', () => { lastString = -1; });
-        window.addEventListener('mouseup', () => { lastString = -1; });
+        strumPlate.addEventListener('touchend', () => lastString = -1);
 
-        window.addEventListener('keydown', (e) => {
-            const num = parseInt(e.key);
-            if (num >= 1 && num <= 8) {
-                const name = chordKeys[num-1];
-                const btns = document.querySelectorAll('.chord-btn');
-                selectChord(name, btns[num-1]);
-            }
-        });
-
-        function kumoInteraction(context, type) {
-            const body = document.getElementById(`kumo-${context}-body`);
-            const bubble = document.getElementById('kumo-bubble-inst');
-            const bubbleText = document.getElementById('bubble-text');
-
-            if (type === 'love') {
-                body.style.transform = "scale(1.2)";
-                if (context === 'instrument') {
-                    bubble.style.opacity = "1";
-                    bubble.style.transform = "translateY(0)";
-                    bubbleText.innerText = "Gyuu~ ✨";
-                    setTimeout(() => { bubble.style.opacity = "0"; bubble.style.transform = "translateY(10px)"; }, 2000);
-                }
-                if(audioUnlocked) playTone(880, 'sine', 0.5, 0.05);
-                setTimeout(() => body.style.transform = "scale(1)", 500);
-            } 
-            else if (type === 'jump') {
-                body.animate([
-                    { transform: 'translateY(0)' },
-                    { transform: 'translateY(-30px)' },
-                    { transform: 'translateY(0)' }
-                ], { duration: 500, easing: 'ease-out' });
-                
-                if (context === 'instrument') {
-                    bubble.style.opacity = "1"; bubble.style.transform = "translateY(0)";
-                    bubbleText.innerText = "Ukiuki! 🎶";
-                    setTimeout(() => { bubble.style.opacity = "0"; bubble.style.transform = "translateY(10px)"; }, 2000);
-                }
-                if(audioUnlocked) {
-                    playTone(440, 'sine', 0.1, 0.05);
-                    setTimeout(() => playTone(660, 'sine', 0.3, 0.05), 100);
-                }
-            }
+        function startSong() {
+            if (isPlaying) { stopSong(); return; }
+            isPlaying = true;
+            playBtn.innerText = "Arrêter";
+            const song = playlist[selectedSongIdx];
+            const startTime = Date.now();
+            const duration = 30; // 30s fixe par démo
+            
+            playbackInterval = setInterval(() => {
+                const elapsed = (Date.now() - startTime) / 1000;
+                document.getElementById('progress-bar').style.width = Math.min((elapsed / duration) * 100, 100) + '%';
+                let activeSeq = song.sequence[0];
+                song.sequence.forEach(s => { if(elapsed >= s.time) activeSeq = s; });
+                updatePlaygroundUI(activeSeq);
+                animateKumoBPM(song.bpm);
+                if (elapsed >= duration) stopSong();
+            }, 100);
         }
 
-        window.onload = () => {
-            initStrings();
-        };
+        function stopSong() {
+            isPlaying = false;
+            playBtn.innerText = "Jouer";
+            clearInterval(playbackInterval);
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('current-lyric').innerText = "Sélectionnez une chanson...";
+            document.querySelectorAll('.chord-btn').forEach(b => b.classList.remove('guide-active'));
+            resetKumo();
+        }
+
+        function updatePlaygroundUI(seq) {
+            const lyricEl = document.getElementById('current-lyric');
+            if (lastLyricTime !== seq.time) {
+                lastLyricTime = seq.time;
+                lyricEl.style.opacity = '0';
+                setTimeout(() => {
+                    lyricEl.innerHTML = `<div>${seq.lyrics}</div><div class="lyric-sub">${seq.sub}</div>`;
+                    lyricEl.style.opacity = '1';
+                }, 150);
+            }
+            document.querySelectorAll('.chord-btn').forEach(b => b.classList.remove('guide-active'));
+            const targetBtn = document.getElementById(`chord-btn-${seq.chord}`);
+            if (targetBtn) targetBtn.classList.add('guide-active');
+        }
+
+        function animateKumoBPM(bpm) {
+            const body = document.getElementById('kumo-inst-body');
+            const beatMs = 60000 / bpm;
+            const phase = (Date.now() % beatMs) / beatMs;
+            const scale = 1 + Math.sin(phase * Math.PI * 2) * 0.05;
+            body.style.transform = `scale(${scale})`;
+        }
+
+        function animateKumoPulse() {
+            const body = document.getElementById('kumo-inst-body');
+            const eyes = document.querySelectorAll('.eye');
+            const mouth = document.querySelector('.mouth');
+            body.style.backgroundColor = '#FFD19A';
+            eyes.forEach(e => e.style.transform = 'scaleY(0.2)');
+            mouth.style.height = '10px';
+            setTimeout(() => {
+                body.style.backgroundColor = 'white';
+                eyes.forEach(e => e.style.transform = 'scaleY(1)');
+                mouth.style.height = '5px';
+            }, 100);
+        }
+
+        function resetKumo() {
+            const body = document.getElementById('kumo-inst-body');
+            body.style.transform = 'scale(1)';
+            body.style.background = 'white';
+        }
+
+        playBtn.onclick = startSong;
+        initStrings();
+        selectSong(0);
     </script>
 </body>
 </html>
