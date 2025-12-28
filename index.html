@@ -333,15 +333,29 @@
             document.getElementById('nav-' + pageId).classList.add('active');
         }
 
-        // --- DÉVERROUILLAGE AUDIO MOBILE ---
+        // --- DÉVERROUILLAGE AUDIO MOBILE AVEC FIX HAUT-PARLEUR ---
         function unlockAudio() {
             if (audioUnlocked) return;
-            if (!audioCtx) audioCtx = new AudioContext();
             
+            // Initialisation forcée avec options pour mobile
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                    latencyHint: 'interactive',
+                    sampleRate: 44100,
+                });
+            }
+            
+            // Hack pour forcer le son sur haut-parleur même en mode silencieux
+            const buffer = audioCtx.createBuffer(1, 1, 22050);
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+
             audioCtx.resume().then(() => {
                 audioUnlocked = true;
                 document.getElementById('mobile-audio-tip').style.opacity = '0';
-                console.log("Audio Unlocked");
+                console.log("Audio Unlocked & Speaker Forced");
             });
         }
 
@@ -368,7 +382,7 @@
         };
         const chordKeys = Object.keys(chords);
 
-        // --- SYNTHÈSE SONORE ---
+        // --- SYNTHÈSE SONORE ORIGINALE ---
         function playTone(freq, type = 'triangle', decay = 1.2, volume = 0.08) {
             if (!audioUnlocked || !audioCtx) return;
             
@@ -424,6 +438,7 @@
             setTimeout(() => led.style.background = 'rgba(96, 165, 250, 0.1)', 150);
 
             if(audioUnlocked) {
+                // Aperçu de l'accord sélectionné
                 currentChordFreqs.forEach(f => playTone(f/2, 'sine', 0.8, 0.02));
             }
         }
@@ -434,7 +449,7 @@
             const rect = strumPlate.getBoundingClientRect();
             const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
             
-            if (!clientX) return;
+            if (clientX === undefined) return;
 
             const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
             const stringIdx = Math.floor((x / rect.width) * 14);
@@ -449,11 +464,11 @@
                     setTimeout(() => strEl.classList.remove('vibrate'), 150);
                 }
 
-                // Audio
+                // Audio - Rétabli sur les paramètres originaux
                 if(audioUnlocked) {
                     const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
                     const octaveShift = Math.floor(stringIdx / 4);
-                    playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.5, 0.07);
+                    playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.2, 0.08);
                 }
                 
                 // Particule
