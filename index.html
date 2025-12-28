@@ -128,10 +128,36 @@
         }
 
         .strum-plate {
-            height: 120px; border-radius: 20px; position: relative; overflow: hidden;
+            height: 140px; border-radius: 20px; position: relative; overflow: hidden;
             background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1));
             border: 1px solid rgba(255,255,255,0.3); touch-action: none;
             cursor: crosshair;
+            display: flex; justify-content: space-between; padding: 0 5px;
+            z-index: 10;
+        }
+
+        /* Visuel des cordes - Garanti sur Desktop et Mobile */
+        .omni-string {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .omni-string::after {
+            content: '';
+            width: 2px; /* Plus épais pour visibilité mobile */
+            height: 100%;
+            background: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+            transition: all 0.15s ease-out;
+        }
+
+        .omni-string.vibrate::after {
+            background: white;
+            box-shadow: 0 0 12px white;
+            transform: scaleX(2.5);
         }
 
         .swatch { height: 60px; width: 100%; border-radius: 16px; margin-bottom: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
@@ -148,15 +174,27 @@
         .sparkle {
             position: absolute; pointer-events: none; border-radius: 50%;
             background: white; animation: sparkleAnim 0.6s ease-out forwards;
+            z-index: 20;
         }
 
         @keyframes sparkleAnim {
             0% { transform: scale(0); opacity: 1; }
             100% { transform: scale(3); opacity: 0; }
         }
+
+        /* Message mobile pour activer le son */
+        #mobile-audio-tip {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--retro-ink); color: white; padding: 12px 24px;
+            border-radius: 50px; font-size: 11px; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 1px; z-index: 100; pointer-events: none; opacity: 0; transition: 0.5s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body class="bg-animated">
+
+    <div id="mobile-audio-tip">Touchez n'importe où pour activer le son 🎵</div>
 
     <!-- Navigation Glogale -->
     <nav class="max-w-4xl mx-auto mt-6 mb-8 flex justify-between items-center bg-white/40 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-sm sticky top-4 z-50">
@@ -170,7 +208,7 @@
         </div>
     </nav>
 
-    <!-- PAGE 1: CONCEPT / STYLE TILE -->
+    <!-- PAGE 1: CONCEPT -->
     <main id="page-concept" class="page-content active max-w-4xl mx-auto px-4 pb-12 space-y-10">
         <header class="text-center py-6">
             <span class="text-[10px] uppercase tracking-[0.4em] font-bold text-[#FFB7B2]">Digital Serenity</span>
@@ -181,7 +219,6 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Mascotte Concept -->
             <section class="glass-card p-8 flex flex-col items-center text-center">
                 <h2 class="section-title w-full">La Mascotte</h2>
                 <div class="kumo-container my-6">
@@ -198,7 +235,6 @@
                 </div>
             </section>
 
-            <!-- Palette Concept -->
             <section class="glass-card p-8">
                 <h2 class="section-title">Palette Chromatique</h2>
                 <div class="grid grid-cols-2 gap-4 h-full content-center">
@@ -222,7 +258,6 @@
             </section>
         </div>
 
-        <!-- Typography -->
         <section class="glass-card p-8">
             <h2 class="section-title">Typographie & Mood</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -244,7 +279,6 @@
 
     <!-- PAGE 2: INSTRUMENT -->
     <main id="page-instrument" class="page-content max-w-lg mx-auto px-4 pb-12 flex flex-col items-center">
-        <!-- Mascotte de Jeu -->
         <div class="text-center relative mb-6">
             <div id="kumo-bubble-inst" class="kumo-bubble">
                 <span id="bubble-text" class="font-bold">...</span>
@@ -258,53 +292,70 @@
             </div>
         </div>
 
-        <!-- Interface Omnichord -->
         <div class="w-full glass-card p-6 space-y-8 shadow-2xl border-white/60 relative">
             <div class="absolute top-4 right-6 flex gap-2">
                 <div class="w-1.5 h-1.5 rounded-full bg-red-400/40"></div>
                 <div id="led-active" class="w-1.5 h-1.5 rounded-full bg-blue-400/10 transition-colors duration-200"></div>
             </div>
 
-            <!-- Grille d'accords -->
-            <div class="chord-grid" id="chord-grid">
-                <!-- Généré par JS -->
-            </div>
+            <div class="chord-grid" id="chord-grid"></div>
 
-            <!-- Strumplate -->
             <div class="space-y-3">
                 <div class="flex justify-between items-center px-1">
                     <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Synth Plate</span>
-                    <span class="text-[8px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Accord Non Défini</span>
+                    <span class="text-[8px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Choisissez un accord</span>
                 </div>
                 <div class="strum-plate shadow-inner" id="strum-plate">
-                    <div class="w-full h-full flex items-center justify-center pointer-events-none select-none">
-                        <span class="text-[8px] uppercase tracking-[0.6em] opacity-20 font-bold">Glisser pour gratter</span>
-                    </div>
+                    <!-- Les cordes sont injectées dynamiquement par JS -->
                 </div>
             </div>
         </div>
 
         <div class="mt-8 text-center opacity-30 space-y-1">
-            <p class="text-[9px] font-bold uppercase tracking-widest">Conseil : Touches 1-8 pour changer d'accord</p>
-            <p class="text-[8px] font-bold uppercase tracking-widest italic">Expérience sonore Vaporwave</p>
+            <p class="text-[9px] font-bold uppercase tracking-widest">Conseil : Glissez sur les cordes pour jouer</p>
+            <p class="text-[8px] font-bold uppercase tracking-widest italic">Vaporwave Soundscape</p>
         </div>
     </main>
 
     <script>
+        // --- ÉTATS GLOBAUX ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let currentChordFreqs = null;
+        let audioUnlocked = false;
+        let lastString = -1;
+
         // --- GESTION DES PAGES ---
         function showPage(pageId) {
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
             document.getElementById('page-' + pageId).classList.add('active');
             document.getElementById('nav-' + pageId).classList.add('active');
         }
 
-        // --- MOTEUR AUDIO ---
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-        let currentChordFreqs = null;
+        // --- DÉVERROUILLAGE AUDIO MOBILE ---
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            
+            audioCtx.resume().then(() => {
+                audioUnlocked = true;
+                document.getElementById('mobile-audio-tip').style.opacity = '0';
+                console.log("Audio Unlocked");
+            });
+        }
 
+        // Afficher l'astuce mobile si nécessaire
+        if (window.innerWidth < 780) {
+            setTimeout(() => {
+                if (!audioUnlocked) document.getElementById('mobile-audio-tip').style.opacity = '1';
+            }, 1000);
+        }
+
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+
+        // --- DONNÉES ACCORDS ---
         const chords = {
             'C': [261.63, 329.63, 392.00],
             'F': [349.23, 440.00, 523.25],
@@ -315,13 +366,12 @@
             'Bb': [233.08, 293.66, 349.23],
             'D': [293.66, 369.99, 440.00]
         };
-
         const chordKeys = Object.keys(chords);
 
+        // --- SYNTHÈSE SONORE ---
         function playTone(freq, type = 'triangle', decay = 1.2, volume = 0.08) {
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
+            if (!audioUnlocked || !audioCtx) return;
+            
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
@@ -338,15 +388,27 @@
             osc.stop(audioCtx.currentTime + decay);
         }
 
-        // --- INITIALISATION INSTRUMENT ---
+        // --- INITIALISATION INTERFACE ---
         const grid = document.getElementById('chord-grid');
         const label = document.getElementById('current-chord-label');
+        const strumPlate = document.getElementById('strum-plate');
+
+        // Création dynamique des 14 cordes visuelles
+        function initStrings() {
+            strumPlate.innerHTML = '';
+            for(let i = 0; i < 14; i++) {
+                const string = document.createElement('div');
+                string.className = 'omni-string';
+                string.id = `string-${i}`;
+                strumPlate.appendChild(string);
+            }
+        }
 
         chordKeys.forEach((name, i) => {
             const btn = document.createElement('div');
             btn.className = 'chord-btn';
             btn.innerHTML = `<span>${name}</span><span class="text-[7px] opacity-20 mt-1 uppercase">${i+1}</span>`;
-            btn.onclick = () => selectChord(name, btn);
+            btn.onclick = (e) => { e.stopPropagation(); selectChord(name, btn); };
             grid.appendChild(btn);
         });
 
@@ -357,50 +419,61 @@
             currentChordFreqs = chords[name];
             label.innerText = "Accord de " + name;
             
-            // LED feedback
             const led = document.getElementById('led-active');
             led.style.background = '#FFB7B2';
             setTimeout(() => led.style.background = 'rgba(96, 165, 250, 0.1)', 150);
 
-            // Son subtil
-            currentChordFreqs.forEach(f => playTone(f/2, 'sine', 0.8, 0.02));
+            if(audioUnlocked) {
+                currentChordFreqs.forEach(f => playTone(f/2, 'sine', 0.8, 0.02));
+            }
         }
 
-        // --- STRUMPLATE LOGIQUE ---
-        const strumPlate = document.getElementById('strum-plate');
-        let lastString = -1;
-
+        // --- LOGIQUE DE JEU (STRUMMING) ---
         function handleStrum(e) {
             if (!currentChordFreqs) return;
             const rect = strumPlate.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+            const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
             
-            // On divise la plaque en 14 "cordes" virtuelles
+            if (!clientX) return;
+
+            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
             const stringIdx = Math.floor((x / rect.width) * 14);
 
-            if (stringIdx !== lastString) {
+            if (stringIdx !== lastString && stringIdx >= 0 && stringIdx < 14) {
                 lastString = stringIdx;
-                const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
-                const octaveShift = Math.floor(stringIdx / 4);
                 
-                playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.5, 0.06);
+                // Animation visuelle
+                const strEl = document.getElementById(`string-${stringIdx}`);
+                if(strEl) {
+                    strEl.classList.add('vibrate');
+                    setTimeout(() => strEl.classList.remove('vibrate'), 150);
+                }
+
+                // Audio
+                if(audioUnlocked) {
+                    const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
+                    const octaveShift = Math.floor(stringIdx / 4);
+                    playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.5, 0.07);
+                }
                 
-                // Effet visuel de particule
+                // Particule
                 const spark = document.createElement('div');
                 spark.className = 'sparkle';
                 spark.style.left = x + 'px';
-                spark.style.top = (e.touches ? e.touches[0].clientY - rect.top : e.offsetY || 60) + 'px';
-                spark.style.width = '10px'; spark.style.height = '10px';
+                spark.style.top = ((e.touches ? e.touches[0].clientY - rect.top : e.offsetY) || 70) + 'px';
+                spark.style.width = '12px'; spark.style.height = '12px';
                 strumPlate.appendChild(spark);
                 setTimeout(() => spark.remove(), 600);
             }
         }
 
+        // Événements de contrôle
         strumPlate.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleStrum(e); });
         strumPlate.addEventListener('mousedown', handleStrum);
-        strumPlate.addEventListener('touchstart', (e) => { e.preventDefault(); handleStrum(e); });
-        strumPlate.addEventListener('touchmove', (e) => { e.preventDefault(); handleStrum(e); });
+        strumPlate.addEventListener('touchstart', (e) => { e.preventDefault(); handleStrum(e); }, {passive: false});
+        strumPlate.addEventListener('touchmove', (e) => { e.preventDefault(); handleStrum(e); }, {passive: false});
+        strumPlate.addEventListener('touchend', () => { lastString = -1; });
+        window.addEventListener('mouseup', () => { lastString = -1; });
 
         window.addEventListener('keydown', (e) => {
             const num = parseInt(e.key);
@@ -425,7 +498,7 @@
                     bubbleText.innerText = "Gyuu~ ✨";
                     setTimeout(() => { bubble.style.opacity = "0"; bubble.style.transform = "translateY(10px)"; }, 2000);
                 }
-                playTone(880, 'sine', 0.5, 0.05);
+                if(audioUnlocked) playTone(880, 'sine', 0.5, 0.05);
                 setTimeout(() => body.style.transform = "scale(1)", 500);
             } 
             else if (type === 'jump') {
@@ -436,15 +509,21 @@
                 ], { duration: 500, easing: 'ease-out' });
                 
                 if (context === 'instrument') {
-                    bubble.style.opacity = "1";
-                    bubble.style.transform = "translateY(0)";
+                    bubble.style.opacity = "1"; bubble.style.transform = "translateY(0)";
                     bubbleText.innerText = "Ukiuki! 🎶";
                     setTimeout(() => { bubble.style.opacity = "0"; bubble.style.transform = "translateY(10px)"; }, 2000);
                 }
-                playTone(440, 'sine', 0.1, 0.05);
-                setTimeout(() => playTone(660, 'sine', 0.3, 0.05), 100);
+                if(audioUnlocked) {
+                    playTone(440, 'sine', 0.1, 0.05);
+                    setTimeout(() => playTone(660, 'sine', 0.3, 0.05), 100);
+                }
             }
         }
+
+        // Initialisation au chargement
+        window.onload = () => {
+            initStrings();
+        };
     </script>
 </body>
 </html>
