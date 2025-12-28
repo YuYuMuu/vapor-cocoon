@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kumo - Omnichord Digital</title>
+    <title>Kumo - Omnichord Digital v2.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -66,7 +66,7 @@
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
             will-change: transform;
-            margin-top: 60px; /* Augmenté de 20px supplémentaires comme demandé */
+            margin-top: 60px;
         }
 
         .kumo-container {
@@ -96,14 +96,21 @@
 
         .kumo-face {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; gap: 12px; z-index: 10;
+            display: flex; flex-direction: column; align-items: center; z-index: 10;
         }
 
-        .eye { width: 6px; height: 6px; background: var(--retro-ink); border-radius: 50%; transition: transform 0.1s; }
+        .eyes-row { display: flex; gap: 12px; margin-bottom: 4px; }
+        .eye { width: 6px; height: 6px; background: var(--retro-ink); border-radius: 50%; transition: transform 0.1s; animation: blink 5s infinite; }
+        
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
         .mouth {
-            position: absolute; width: 10px; height: 5px;
+            width: 10px; height: 5px;
             border-bottom: 2px solid var(--retro-ink); border-radius: 0 0 5px 5px;
-            bottom: -10px; left: 10px; transition: height 0.1s;
+            transition: height 0.1s;
         }
 
         /* --- LAYOUT INSTRUMENT --- */
@@ -218,7 +225,10 @@
                     <div class="kumo-wrapper" id="kumo-concept-wrap">
                         <div class="kumo-body" id="kumo-concept-body">
                             <div class="kumo-face">
-                                <div class="eye"></div><div class="eye"></div><div class="mouth"></div>
+                                <div class="eyes-row">
+                                    <div class="eye"></div><div class="eye"></div>
+                                </div>
+                                <div class="mouth"></div>
                             </div>
                         </div>
                     </div>
@@ -246,7 +256,10 @@
                 <div class="kumo-wrapper" id="kumo-inst-wrap">
                     <div class="kumo-body" id="kumo-inst-body">
                         <div class="kumo-face">
-                            <div class="eye"></div><div class="eye"></div><div class="mouth"></div>
+                            <div class="eyes-row">
+                                <div class="eye"></div><div class="eye"></div>
+                            </div>
+                            <div class="mouth"></div>
                         </div>
                     </div>
                 </div>
@@ -273,7 +286,6 @@
     </main>
 
     <script>
-        // Variables globales pour le DOM
         let playBtn = null;
         let progressBar = null;
         let currentLyric = null;
@@ -283,25 +295,62 @@
 
         const playlist = [
             { title: "Yume", bpm: 80, sequence: [
-                { time: 0, lyrics: "Sora wa pinku iro...", sub: "Le ciel est rose...", chord: "C", scale: "Do Majeur" },
-                { time: 8, lyrics: "Kaze ga utau yo.", sub: "Le vent chante.", chord: "F", scale: "Fa Majeur" },
-                { time: 16, lyrics: "Issho ni odorou !", sub: "Dansons ensemble !", chord: "G", scale: "Sol Majeur" },
-                { time: 24, lyrics: "Mata ne...", sub: "À bientôt...", chord: "C", scale: "Do Majeur" }
+                { time: 0, lyrics: "Sora wa pinku iro...", sub: "Le ciel est rose...", chord: "C" },
+                { time: 5, lyrics: "Fuwafuwa kumo...", sub: "Nuages duveteux...", chord: "Am" },
+                { time: 10, lyrics: "Kaze ga utau yo.", sub: "Le vent chante.", chord: "F" },
+                { time: 15, lyrics: "Hikari no naka de.", sub: "Dans la lumière.", chord: "G" },
+                { time: 20, lyrics: "Issho ni odorou !", sub: "Dansons ensemble !", chord: "F" },
+                { time: 25, lyrics: "Mata ne...", sub: "À bientôt...", chord: "C" }
             ]},
             { title: "Kumo", bpm: 100, sequence: [
-                { time: 0, lyrics: "Je plane haut...", sub: "Flying high...", chord: "Am", scale: "La Mineur" },
-                { time: 10, lyrics: "Entre les formes.", sub: "Between shapes.", chord: "Dm", scale: "Ré Mineur" },
-                { time: 20, lyrics: "Nuage de son.", sub: "Cloud of sound.", chord: "F", scale: "Fa Majeur" }
+                { time: 0, lyrics: "Je plane haut...", sub: "Flying high...", chord: "Am" },
+                { time: 6, lyrics: "Le vent m'emporte.", sub: "Wind carries me.", chord: "Em" },
+                { time: 12, lyrics: "Entre les formes.", sub: "Between shapes.", chord: "Dm" },
+                { time: 18, lyrics: "Lumière douce.", sub: "Soft light.", chord: "G" },
+                { time: 24, lyrics: "Nuage de son.", sub: "Cloud of sound.", chord: "F" }
             ]},
-            // 10 chansons maintenues
-            { title: "Sora", bpm: 90, sequence: [{ time: 0, lyrics: "Bleu infini", sub: "Infinite blue", chord: "C" }] },
-            { title: "Mizu", bpm: 75, sequence: [{ time: 0, lyrics: "L'eau claire", sub: "Clear water", chord: "F" }] },
-            { title: "Kaze", bpm: 110, sequence: [{ time: 0, lyrics: "Le vent souffle", sub: "The wind blows", chord: "G" }] },
-            { title: "Hi", bpm: 120, sequence: [{ time: 0, lyrics: "Feu sacré", sub: "Sacred fire", chord: "Am" }] },
-            { title: "Yama", bpm: 70, sequence: [{ time: 0, lyrics: "La montagne", sub: "The mountain", chord: "Em" }] },
-            { title: "Mori", bpm: 85, sequence: [{ time: 0, lyrics: "Forêt dense", sub: "Dense forest", chord: "Bb" }] },
-            { title: "Hoshi", bpm: 60, sequence: [{ time: 0, lyrics: "Étoile filante", sub: "Shooting star", chord: "D" }] },
-            { title: "Tsuki", bpm: 65, sequence: [{ time: 0, lyrics: "Lune d'argent", sub: "Silver moon", chord: "C" }] }
+            { title: "Sora", bpm: 90, sequence: [
+                { time: 0, lyrics: "Bleu infini", sub: "Infinite blue", chord: "C" },
+                { time: 7, lyrics: "Éclat d'argent", sub: "Silver glow", chord: "G" },
+                { time: 15, lyrics: "Le ciel s'ouvre", sub: "Sky opens", chord: "F" },
+                { time: 22, lyrics: "Rêve éveillé", sub: "Daydream", chord: "C" }
+            ] },
+            { title: "Mizu", bpm: 75, sequence: [
+                { time: 0, lyrics: "L'eau claire", sub: "Clear water", chord: "F" },
+                { time: 10, lyrics: "Reflets denses", sub: "Deep reflections", chord: "Bb" },
+                { time: 20, lyrics: "Courant calme", sub: "Calm current", chord: "F" }
+            ] },
+            { title: "Kaze", bpm: 110, sequence: [
+                { time: 0, lyrics: "Le vent souffle", sub: "The wind blows", chord: "G" },
+                { time: 8, lyrics: "Traverser les plaines", sub: "Across the plains", chord: "D" },
+                { time: 16, lyrics: "S'envoler loin", sub: "Flying far", chord: "C" },
+                { time: 24, lyrics: "Retour au calme", sub: "Back to calm", chord: "G" }
+            ] },
+            { title: "Hi", bpm: 120, sequence: [
+                { time: 0, lyrics: "Feu sacré", sub: "Sacred fire", chord: "Am" },
+                { time: 10, lyrics: "Chaleur vive", sub: "Vivid heat", chord: "Dm" },
+                { time: 20, lyrics: "Cendre et or", sub: "Ash and gold", chord: "Am" }
+            ] },
+            { title: "Yama", bpm: 70, sequence: [
+                { time: 0, lyrics: "La montagne", sub: "The mountain", chord: "Em" },
+                { time: 15, lyrics: "Sommet blanc", sub: "White peak", chord: "Am" },
+                { time: 25, lyrics: "L'écho résonne", sub: "Echo resounds", chord: "Em" }
+            ] },
+            { title: "Mori", bpm: 85, sequence: [
+                { time: 0, lyrics: "Forêt dense", sub: "Dense forest", chord: "Bb" },
+                { time: 10, lyrics: "Ombres vertes", sub: "Green shadows", chord: "F" },
+                { time: 20, lyrics: "Racines de terre", sub: "Earth roots", chord: "Bb" }
+            ] },
+            { title: "Hoshi", bpm: 60, sequence: [
+                { time: 0, lyrics: "Étoile filante", sub: "Shooting star", chord: "D" },
+                { time: 15, lyrics: "Nuit noire", sub: "Dark night", chord: "G" },
+                { time: 25, lyrics: "Voeu secret", sub: "Secret wish", chord: "D" }
+            ] },
+            { title: "Tsuki", bpm: 65, sequence: [
+                { time: 0, lyrics: "Lune d'argent", sub: "Silver moon", chord: "C" },
+                { time: 10, lyrics: "Clarté nocturne", sub: "Night clarity", chord: "Am" },
+                { time: 20, lyrics: "Douceur ronde", sub: "Round sweetness", chord: "F" }
+            ] }
         ];
 
         const chords = {
@@ -347,11 +396,17 @@
 
         function animateKumoColorSync(freq) {
             if (!kumoInstBody || !kumoInstWrap) return;
-            const mouth = document.querySelector('.mouth');
+            const mouth = document.querySelector('#page-instrument .mouth');
             
-            let color = '#FFB7B2'; 
-            if (freq < 300) color = '#B2CEFE'; 
-            if (freq > 450) color = '#FFD19A'; 
+            let color = 'white'; 
+            // Palette étendue selon fréquence
+            if (freq < 250) color = '#A5B4FC'; // Indigo
+            else if (freq < 300) color = '#93C5FD'; // Blue
+            else if (freq < 350) color = '#6EE7B7'; // Emerald
+            else if (freq < 400) color = '#FDE68A'; // Amber
+            else if (freq < 450) color = '#FCA5A5'; // Red-Pink
+            else if (freq < 500) color = '#F9A8D4'; // Pink
+            else color = '#C4B5FD'; // Purple
 
             kumoInstBody.style.backgroundColor = color;
             kumoInstWrap.style.transform = 'scale(1.1)';
