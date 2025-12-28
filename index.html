@@ -114,7 +114,7 @@
         }
 
         /* Omnichord Styles */
-        .chord-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .chord-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 45%; }
         .chord-btn {
             aspect-ratio: 1.1; background: white; border-radius: 16px;
             border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column;
@@ -127,28 +127,29 @@
             box-shadow: 0 1px 0 rgba(0,0,0,0.1); border-color: transparent;
         }
 
+        /* Strum Plate Verticale */
         .strum-plate {
-            height: 140px; border-radius: 20px; position: relative; overflow: hidden;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+            width: 50%; height: 320px; border-radius: 24px; position: relative; overflow: hidden;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1));
             border: 1px solid rgba(255,255,255,0.3); touch-action: none;
             cursor: crosshair;
-            display: flex; justify-content: space-between; padding: 0 5px;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 5px 0;
             z-index: 10;
         }
 
-        /* Visuel des cordes - Garanti sur Desktop et Mobile */
+        /* Visuel des cordes horizontales pour plaque verticale */
         .omni-string {
+            width: 100%;
             flex: 1;
-            height: 100%;
             position: relative;
             display: flex;
-            justify-content: center;
+            align-items: center;
         }
 
         .omni-string::after {
             content: '';
-            width: 2px; /* Plus épais pour visibilité mobile */
-            height: 100%;
+            height: 2px;
+            width: 100%;
             background: rgba(255, 255, 255, 0.45);
             box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
             transition: all 0.15s ease-out;
@@ -157,7 +158,7 @@
         .omni-string.vibrate::after {
             background: white;
             box-shadow: 0 0 12px white;
-            transform: scaleX(2.5);
+            transform: scaleY(2.5);
         }
 
         .swatch { height: 60px; width: 100%; border-radius: 16px; margin-bottom: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
@@ -189,6 +190,14 @@
             border-radius: 50px; font-size: 11px; font-weight: bold; text-transform: uppercase;
             letter-spacing: 1px; z-index: 100; pointer-events: none; opacity: 0; transition: 0.5s;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Layout Instrument Gaucher/Droitier Naturel */
+        .instrument-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            width: 100%;
         }
     </style>
 </head>
@@ -278,7 +287,7 @@
     </main>
 
     <!-- PAGE 2: INSTRUMENT -->
-    <main id="page-instrument" class="page-content max-w-lg mx-auto px-4 pb-12 flex flex-col items-center">
+    <main id="page-instrument" class="page-content max-w-2xl mx-auto px-4 pb-12 flex flex-col items-center">
         <div class="text-center relative mb-6">
             <div id="kumo-bubble-inst" class="kumo-bubble">
                 <span id="bubble-text" class="font-bold">...</span>
@@ -292,19 +301,25 @@
             </div>
         </div>
 
-        <div class="w-full glass-card p-6 space-y-8 shadow-2xl border-white/60 relative">
+        <div class="w-full glass-card p-6 space-y-6 shadow-2xl border-white/60 relative">
             <div class="absolute top-4 right-6 flex gap-2">
                 <div class="w-1.5 h-1.5 rounded-full bg-red-400/40"></div>
                 <div id="led-active" class="w-1.5 h-1.5 rounded-full bg-blue-400/10 transition-colors duration-200"></div>
             </div>
 
-            <div class="chord-grid" id="chord-grid"></div>
+            <!-- Header Labels -->
+            <div class="flex justify-between items-center px-1">
+                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Chords (Main Gauche)</span>
+                <span class="text-[8px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Choisissez un accord</span>
+                <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Strum (Main Droite)</span>
+            </div>
 
-            <div class="space-y-3">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-[8px] font-bold uppercase tracking-widest opacity-30">Synth Plate</span>
-                    <span class="text-[8px] font-bold uppercase text-[#FFB7B2]" id="current-chord-label">Choisissez un accord</span>
-                </div>
+            <!-- Nouvelle Disposition Flex -->
+            <div class="instrument-layout">
+                <!-- Touches Gammes à gauche -->
+                <div class="chord-grid" id="chord-grid"></div>
+
+                <!-- Synth Plate Verticale à droite -->
                 <div class="strum-plate shadow-inner" id="strum-plate">
                     <!-- Les cordes sont injectées dynamiquement par JS -->
                 </div>
@@ -312,7 +327,7 @@
         </div>
 
         <div class="mt-8 text-center opacity-30 space-y-1">
-            <p class="text-[9px] font-bold uppercase tracking-widest">Conseil : Glissez sur les cordes pour jouer</p>
+            <p class="text-[9px] font-bold uppercase tracking-widest">Conseil : Appuyez à gauche, glissez à droite</p>
             <p class="text-[8px] font-bold uppercase tracking-widest italic">Vaporwave Soundscape</p>
         </div>
     </main>
@@ -337,7 +352,6 @@
         function unlockAudio() {
             if (audioUnlocked) return;
             
-            // Initialisation forcée avec options pour mobile
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)({
                     latencyHint: 'interactive',
@@ -345,7 +359,6 @@
                 });
             }
             
-            // Hack pour forcer le son sur haut-parleur même en mode silencieux
             const buffer = audioCtx.createBuffer(1, 1, 22050);
             const source = audioCtx.createBufferSource();
             source.buffer = buffer;
@@ -359,7 +372,6 @@
             });
         }
 
-        // Afficher l'astuce mobile si nécessaire
         if (window.innerWidth < 780) {
             setTimeout(() => {
                 if (!audioUnlocked) document.getElementById('mobile-audio-tip').style.opacity = '1';
@@ -407,7 +419,6 @@
         const label = document.getElementById('current-chord-label');
         const strumPlate = document.getElementById('strum-plate');
 
-        // Création dynamique des 14 cordes visuelles
         function initStrings() {
             strumPlate.innerHTML = '';
             for(let i = 0; i < 14; i++) {
@@ -438,51 +449,50 @@
             setTimeout(() => led.style.background = 'rgba(96, 165, 250, 0.1)', 150);
 
             if(audioUnlocked) {
-                // Aperçu de l'accord sélectionné
                 currentChordFreqs.forEach(f => playTone(f/2, 'sine', 0.8, 0.02));
             }
         }
 
-        // --- LOGIQUE DE JEU (STRUMMING) ---
+        // --- LOGIQUE DE JEU (STRUMMING VERTICAL) ---
         function handleStrum(e) {
             if (!currentChordFreqs) return;
             const rect = strumPlate.getBoundingClientRect();
+            
+            // On utilise Y pour la plaque verticale
+            const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
             const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
             
-            if (clientX === undefined) return;
+            if (clientY === undefined) return;
 
-            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-            const stringIdx = Math.floor((x / rect.width) * 14);
+            const y = Math.max(0, Math.min(clientY - rect.top, rect.height));
+            const stringIdx = Math.floor((y / rect.height) * 14);
 
             if (stringIdx !== lastString && stringIdx >= 0 && stringIdx < 14) {
                 lastString = stringIdx;
                 
-                // Animation visuelle
                 const strEl = document.getElementById(`string-${stringIdx}`);
                 if(strEl) {
                     strEl.classList.add('vibrate');
                     setTimeout(() => strEl.classList.remove('vibrate'), 150);
                 }
 
-                // Audio - Rétabli sur les paramètres originaux
                 if(audioUnlocked) {
                     const noteBase = currentChordFreqs[stringIdx % currentChordFreqs.length];
                     const octaveShift = Math.floor(stringIdx / 4);
                     playTone(noteBase * Math.pow(2, octaveShift), 'triangle', 1.2, 0.08);
                 }
                 
-                // Particule
+                // Particule adaptée au nouveau layout
                 const spark = document.createElement('div');
                 spark.className = 'sparkle';
-                spark.style.left = x + 'px';
-                spark.style.top = ((e.touches ? e.touches[0].clientY - rect.top : e.offsetY) || 70) + 'px';
+                spark.style.left = (clientX - rect.left) + 'px';
+                spark.style.top = y + 'px';
                 spark.style.width = '12px'; spark.style.height = '12px';
                 strumPlate.appendChild(spark);
                 setTimeout(() => spark.remove(), 600);
             }
         }
 
-        // Événements de contrôle
         strumPlate.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleStrum(e); });
         strumPlate.addEventListener('mousedown', handleStrum);
         strumPlate.addEventListener('touchstart', (e) => { e.preventDefault(); handleStrum(e); }, {passive: false});
@@ -499,7 +509,6 @@
             }
         });
 
-        // --- INTERACTIONS MASCOTTE ---
         function kumoInteraction(context, type) {
             const body = document.getElementById(`kumo-${context}-body`);
             const bubble = document.getElementById('kumo-bubble-inst');
@@ -535,7 +544,6 @@
             }
         }
 
-        // Initialisation au chargement
         window.onload = () => {
             initStrings();
         };
